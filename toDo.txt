@@ -1,0 +1,5 @@
+Update control to include parameters required in master. 
+Update control to have better hash method for bring up and shutdown. 
+Update control to include last access time if network endpoint. 
+
+Update master to have actual scheduling. 
