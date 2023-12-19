@@ -153,7 +153,7 @@ class Node:
 
     def __str__(self):
         output = f"Node Info - IP: {self.ip}, Port: {self.port}\n"
-        output += "Running Networks:\n"
+        output += "Running Networks:"
         
         # Formatting networks in a 3 column format
         for i, net in enumerate(self.nets):
@@ -163,7 +163,7 @@ class Node:
             else:
                 output += " | "
 
-        output += "\nUsed Ports:\n"
+        output += "\nUsed Ports:"
 
         # Formatting ports in a 3 column format
         for i, port in enumerate(self.portList):
@@ -176,5 +176,6 @@ class Node:
         return output
 
 def alive(self, int):
-    if time now = time last talked < int return true
+    #if time now = time last talked < int return true
+    pass
 

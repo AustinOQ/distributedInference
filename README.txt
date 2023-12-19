@@ -42,6 +42,7 @@ StartUp Process:
 
 Requirments:
     python 3.10
+    sudo apt install python3-psutil
     pytorch
     The ability so ssh into existing system.
 

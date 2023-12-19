@@ -21,7 +21,7 @@ def handle_client_connection(connection, address):
                 json_data = json.loads(data.decode('utf-8'))
                 handle_node_status(json_data)
         except Exception as e:
-            print(f"An error occurred with {address}: {e}")
+           print(f"An error occurred with hjdfakhfla{address}: {e}")
         finally:
             connection.close()
             print(f"Connection with {address} closed.")
@@ -30,14 +30,19 @@ def handle_node_status(data):
     status = data.get('status')
     ip = data.get('ip')
     port = data.get('port')
-    hardwarePerformance = data.get('hardwarePerformance')
-    dnns = data.get('networks')
+    netList = data.get('netList')
+    ram=data.get('ram')
+    ramUtilization=data.get('ramUtilization')
+    cpu=data.get('cpu')
+    cpuUtilization=data.get('cpuUtilization')
+    portList=data.get('portList')
+
     with node_controllers_lock:
         if status == 'up':
-            Node(ip, port, cpu, ram, cpuUtilization, ramUtilization, nets, portList)
+            Node(ip, port, cpu, ram, cpuUtilization, ramUtilization, netList, portList)
         elif status == 'update':
             node=Node.findByIp(ip)
-            node.update(cpuUtilization=0, ramUtilization=0, nets=[], portList=[])
+            node.update(cpuUtilization, ramUtilization, netList, portList)
             print(f"Node controller updated: {ip}:{port}")
 
 def listen_for_connections(port):

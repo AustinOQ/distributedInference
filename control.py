@@ -7,6 +7,7 @@ import os
 import signal
 import time
 import threading
+import psutil
 
 
 
@@ -24,6 +25,14 @@ running = {}  # Dictionary to keep track of running processes [message]=pid
                 #Above should use netName as key. Return pid
 
 
+
+    
+
+
+
+
+
+
 def send_message_to_server(host=MY_IP, master_port=MASTER_PORT):
     """
     Sends a message to the master server with the status, IP, and port of the node controller.
@@ -36,12 +45,22 @@ def send_message_to_server(host=MY_IP, master_port=MASTER_PORT):
     my_port (int): The port number of the node controller.
     """
     status="up"
+    cpuUtilization = psutil.cpu_percent(interval=.5)
+    ramUtilization = psutil.virtual_memory().percent
+    connections = psutil.net_connections()
+    portList = [conn.laddr.port for conn in connections if conn.laddr.port >= 1050]
+
+    
     message = {
         'status': "up",
         'ip': MY_IP,
         'port': MY_PORT,
-        'hardwarePerformance': cpuCores*cpuFreq,
-        'networks':list(running.keys())
+        'cpu': cpuCores*cpuFreq,
+        'ram':ram,
+        'cpuUtilization':cpuUtilization,
+        'ramUtilization':ramUtilization,
+        'netList':list(running.keys()),
+        'portList':portList
     }
     while(True):
         # Create a socket (SOCK_STREAM means a TCP socket)
@@ -50,15 +69,22 @@ def send_message_to_server(host=MY_IP, master_port=MASTER_PORT):
             sock.connect((host, master_port))
             sock.sendall(json.dumps(message).encode('utf-8'))
             print(f"Status '{status}' with IP {MY_IP} and port {MY_PORT} sent to {host}:{master_port}")
-        
+        cpuUtilization = psutil.cpu_percent(interval=.5)
+        ramUtilization = psutil.virtual_memory().percent
+        connections = psutil.net_connections()
+        portList = [conn.laddr.port for conn in connections if conn.laddr.port >= 1050]
         message = {
         'status': "update",
         'ip': MY_IP,
         'port': MY_PORT,
-        'hardwarePerformance': cpuCores*cpuFreq,
-        'networks':list(running.keys())
+        'cpu': cpuCores*cpuFreq,
+        'ram':ram,
+        'cpuUtilization':cpuUtilization,
+        'ramUtilization':ramUtilization,
+        'netList':list(running.keys()),
+        'portList':portList
         }
-        time.sleep(5)
+        time.sleep(10)
         
 
 def listen_for_instructions(my_port):
