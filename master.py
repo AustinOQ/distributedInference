@@ -122,7 +122,7 @@ def main_logic():
     while True:
         if len(requests_to_serve) != 0 and len(Node.nodeList) != 0:
             request = requests_to_serve.pop(0)
-            run=Node.isRunning(request[3])
+            run=Node.isRunning(request[2])
             if(run!=False):
                 reply_to_request(run[0], run[1], request[0], request[1], request[2])#entry_ip, entry_port, host, port, network
             else:
