@@ -75,33 +75,44 @@ class Node:
         return (self.ram*(1-self.ramUtilization/100))>=required
 
     def startService(self, netName, startLayer, endLayer, listenPort, nextIP, nextPort):
-        source="master"
-        task="bringup"
-        message=f"{netName} {startLayer} {endLayer} {listenPort} {nextIP} {nextPort}"
+        source = "master"
+        task = "bringup"
+        message = f"{netName} {startLayer} {endLayer} {listenPort} {nextIP} {nextPort}"
         data = {
-        'source': source,
-        'task': task,
-        'netName': netName,
-        'listenPort': listenPort,
-        'startLayer': startLayer,
-        'message': message
+            'source': source,
+            'task': task,
+            'netName': netName,
+            'listenPort': listenPort,
+            'startLayer': startLayer,
+            'message': message
                 }
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
                 sock.connect((self.ip, self.port))
                 sock.sendall(json.dumps(data).encode('utf-8'))
-                print(f"Sent to {self.host}:{self.port} - Task: {task}, Message: {message}")
+                print(f"Sent to {self.ip}:{self.port} - Task: {task}, Message: {message}")
             except ConnectionRefusedError:
-                print(f"Connection to {self.host}:{self.port} refused. Make sure the server is running.")
+                print(f"Connection to {self.ip}:{self.port} refused. Make sure the server is running.")
                 return False
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return False
-        if  startLayer==0:
-            Node.netList=list(set(Node.netList).add((netName, self.ip, listenPort)))
-        self.nets=list(set(self.nets).add((netName, self.ip, listenPort)))
-        self.portList=list(set(self.portList).add(listenPort))
+
+        if startLayer == 0:
+            temp_set = set(Node.netList)
+            temp_set.add((netName, self.ip, listenPort))
+            Node.netList = list(temp_set)
+
+        temp_set = set(self.nets)
+        temp_set.add((netName, self.ip, listenPort))
+        self.nets = list(temp_set)
+
+        temp_set = set(self.portList)
+        temp_set.add(listenPort)
+        self.portList = list(temp_set)
+
         return True
+
 
     def endService(self, netName, startLayer, endLayer, listenPort, nextIP, nextPort):
         source="master"
@@ -119,17 +130,28 @@ class Node:
             try:
                 sock.connect((self.ip, self.port))
                 sock.sendall(json.dumps(data).encode('utf-8'))
-                print(f"Sent to {self.host}:{self.port} - Task: {task}, Message: {message}")
+                print(f"Sent to {self.ip}:{self.port} - Task: {task}, Message: {message}")
             except ConnectionRefusedError:
-                print(f"Connection to {self.host}:{self.port} refused. Make sure the server is running.")
+                print(f"Connection to {self.ip}:{self.port} refused. Make sure the server is running.")
                 return False
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return False
         if  startLayer==0:
-                Node.netList=list(set(Node.netList).add((netName, self.ip, listenPort)))
-        self.nets=list(set(self.nets).discard((netName, self.ip, listenPort)))
-        self.portList=list(set(self.portList).discard(listenPort))
+                temp_set = set(Node.netList)
+                temp_set.discard((netName, self.ip, listenPort))######################ERRRORRRRRRR DISCARD NO NOT ADDDD
+                Node.netList = list(temp_set)
+
+        # For self.nets
+        temp_set = set(self.nets)
+        temp_set.discard((netName, self.ip, listenPort))
+        self.nets = list(temp_set)
+
+        # For self.portList
+        temp_set = set(self.portList)
+        temp_set.discard(listenPort)
+        self.portList = list(temp_set)
+
         return True
     
     def nodeReset(self):
@@ -141,9 +163,9 @@ class Node:
             try:
                 sock.connect((self.ip, self.port))
                 sock.sendall(json.dumps(data).encode('utf-8'))
-                print(f"Sent to {self.host}:{self.port} - Task: {task}!")
+                print(f"Sent to {self.ip}:{self.port} - Task: {task}!")
             except ConnectionRefusedError:
-                print(f"Connection to {self.host}:{self.port} refused. Make sure the server is running.")
+                print(f"Connection to {self.ip}:{self.port} refused. Make sure the server is running.")
                 return False
             except Exception as e:
                 print(f"An error occurred: {e}")
