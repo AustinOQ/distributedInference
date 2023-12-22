@@ -26,13 +26,6 @@ running = {}  # Dictionary to keep track of running processes [message]=pid
 
 
 
-    
-
-
-
-
-
-
 def send_message_to_server(host=MY_IP, master_port=MASTER_PORT):
     """
     Sends a message to the master server with the status, IP, and port of the node controller.
@@ -121,21 +114,22 @@ def handle_instruction(connection, instruction):
         source=instruction.get('source')
         task = instruction.get('task')
         netName=instruction.get('netName')
+        listenPort=instruction.get('listenPort')
         message = instruction.get('message')
         print(f"Processing task: {task} with message: {message}")
         if source=='master':
             if task == 'bringup':
               args = message.split()
               proc = subprocess.Popen(['python3', 'server.py'] + args)
-              running[netName] = proc.pid
-              print(f"Bringing up {message} with PID {proc.pid}")
+              running[(netName,listenPort)] = proc.pid
+              print(f"Bringing up {netName} with PID {proc.pid}")
 
             elif task == 'shutdown':
-                pid = running.get(message)[0]
+                pid = running.get((netName, listenPort))
                 if pid:
                     os.kill(pid, signal.SIGTERM)
-                    del running[message]
-                    print(f"Shut down {message} with PID {pid}")
+                    del running[(netName,listenPort)]
+                    print(f"Shut down {netName} with PID {pid}")
         else:
             #updates are sent by dnn exitnodes everytime they complete a request. These will be used to track time of
             #last request completed. Measured using linux epoch. 

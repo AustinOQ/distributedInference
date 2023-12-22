@@ -74,10 +74,10 @@ class Node:
     def canFit(self, required):
         return (self.ram*(1-self.ramUtilization/100))>=required
 
-    def startService(self, listenPort, sendPort, nextIP, netName, startLayer=0, endLayer=None):
+    def startService(self, netName, startLayer, endLayer, listenPort, nextIP, nextPort):
         source="master"
         task="bringup"
-        message=f"{listenPort} {sendPort} {nextIP} {netName} {startLayer} {endLayer}"
+        message=f"{netName} {startLayer} {endLayer} {listenPort} {nextIP} {nextPort}"
         data = {
         'source': source,
         'task': task,
@@ -103,10 +103,10 @@ class Node:
         self.portList=list(set(self.portList).add(listenPort))
         return True
 
-    def endService(self, listenPort, sendPort, nextIP, netName, startLayer=0, endLayer=None):
+    def endService(self, netName, startLayer, endLayer, listenPort, nextIP, nextPort):
         source="master"
         task="shutdown"
-        message=f"{listenPort} {sendPort} {nextIP} {netName} {startLayer} {endLayer}"
+        message=f"{netName} {startLayer} {endLayer} {listenPort} {nextIP} {nextPort}"
         data = {
         'source':source,
         'task': task,
