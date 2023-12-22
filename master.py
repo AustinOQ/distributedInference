@@ -115,7 +115,7 @@ def reply_to_request(entry_ip, entry_port, host, port, network):
 
 #must return (entry ip, entry port)
 def schedule(request):
-    pass
+    return ("127.0.0.1", 5000)
 
 
 def main_logic():
