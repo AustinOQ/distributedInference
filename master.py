@@ -116,7 +116,7 @@ def reply_to_request(entry_ip, entry_port, host, port, network):
 #must return (entry ip, entry port)
 def schedule(request):
     n=Node.nodeList[0]
-    n.startService( "Yolo", 0, None, 5000, 5001, "127.0.0.1")
+    n.startService( "YOLO", 0, None, 5000, 5001, "127.0.0.1")
     return ("127.0.0.1", 5000)
 
 
@@ -125,7 +125,10 @@ def main_logic():
         if len(requests_to_serve) != 0 and len(Node.nodeList) != 0:
             request = requests_to_serve.pop(0)
             run=Node.isRunning(request[2])
+            print(run)
+            print(type(run))
             if(run!=False):
+                print("Already running")
                 reply_to_request(run[0], run[1], request[0], request[1], request[2])#entry_ip, entry_port, host, port, network
             else:
                 run=schedule(request)

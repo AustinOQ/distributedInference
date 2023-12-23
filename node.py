@@ -19,7 +19,9 @@ class Node:
     
     @classmethod
     def isRunning(cls, netName):
+        print(f"Searching for {netName}\n")
         for i in cls.netList:
+            print(i[0])
             if i[0]==netName:
                 return (i[1],i[2])
         return False
@@ -51,8 +53,8 @@ class Node:
         self.cpuUtilization=cpuUtilization
         self.ramUtilization=ramUtilization
         
-        self.nets=list(set(nets) | set(self.nets))
-        self.portList=list(set(portList) | set(self.portList)) 
+        self.nets=nets#list(set(nets) | set(self.nets))
+        self.portList=portList#list(set(portList) | set(self.portList)) 
 
         self.lastUpdated=time.time()
 
@@ -98,18 +100,20 @@ class Node:
                 print(f"An error occurred: {e}")
                 return False
 
+        # Updating the Node.netList for network-wide tracking
         if startLayer == 0:
-            temp_set = set(Node.netList)
-            temp_set.add((netName, self.ip, listenPort))
-            Node.netList = list(temp_set)
+            new_entry = (netName, self.ip, listenPort)
+            if new_entry not in Node.netList:
+                Node.netList.append(new_entry)
 
-        temp_set = set(self.nets)
-        temp_set.add((netName, self.ip, listenPort))
-        self.nets = list(temp_set)
+        # Updating self.nets to track networks on this node
+        new_net = (netName, startLayer, endLayer, listenPort, nextIP, nextPort)
+        if new_net not in self.nets:
+            self.nets.append(new_net)
 
-        temp_set = set(self.portList)
-        temp_set.add(listenPort)
-        self.portList = list(temp_set)
+        # Updating self.portList to track used ports on this node
+        if listenPort not in self.portList:
+            self.portList.append(listenPort)
 
         return True
 
@@ -137,20 +141,20 @@ class Node:
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return False
-        if  startLayer==0:
-                temp_set = set(Node.netList)
-                temp_set.discard((netName, self.ip, listenPort))######################ERRRORRRRRRR DISCARD NO NOT ADDDD
-                Node.netList = list(temp_set)
+        # Updating the Node.netList for network-wide tracking
+        if startLayer == 0:
+            entry_to_remove = (netName, self.ip, listenPort)
+            if entry_to_remove in Node.netList:
+                Node.netList.remove(entry_to_remove)
 
-        # For self.nets
-        temp_set = set(self.nets)
-        temp_set.discard((netName, self.ip, listenPort))
-        self.nets = list(temp_set)
+        # Updating self.nets to remove the network from this node
+        net_to_remove = (netName, startLayer, endLayer, listenPort, nextIP, nextPort)
+        if net_to_remove in self.nets:
+            self.nets.remove(net_to_remove)
 
-        # For self.portList
-        temp_set = set(self.portList)
-        temp_set.discard(listenPort)
-        self.portList = list(temp_set)
+        # Updating self.portList to free up the port
+        if listenPort in self.portList:
+            self.portList.remove(listenPort)
 
         return True
     
@@ -174,28 +178,9 @@ class Node:
         return True
 
     def __str__(self):
-        output = f"Node Info - IP: {self.ip}, Port: {self.port}\n"
-        output += "Running Networks:"
-        
-        # Formatting networks in a 3 column format
-        for i, net in enumerate(self.nets):
-            output += f"{net[0]:<20} {net[1]:<10} {net[2]:<10}"
-            if (i + 1) % 3 == 0:
-                output += "\n"
-            else:
-                output += " | "
-
-        output += "\nUsed Ports:"
-
-        # Formatting ports in a 3 column format
-        for i, port in enumerate(self.portList):
-            output += f"{port:<10}"
-            if (i + 1) % 3 == 0:
-                output += "\n"
-            else:
-                output += " | "
-
+        output = f"Node IP: {self.ip}, Port: {self.port}\n"
         return output
+
 
 def alive(self, int):
     #if time now = time last talked < int return true
