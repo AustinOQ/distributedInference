@@ -1,3 +1,5 @@
+import base64
+from io import BytesIO
 import torch
 import torchvision.transforms as transforms
 from PIL import Image
@@ -24,39 +26,29 @@ def load_model(model_path):
     model.eval()
     return model
 
-def predict(model, image_path):
+def predict(model, image_base64):
+    # Decode the base64 string
+    image_data = base64.b64decode(image_base64)
+    image = Image.open(BytesIO(image_data)).convert('L')
+
     # Define the transformation
     transform = transforms.Compose([
-        transforms.Resize((28, 28)),  # Resize the image to 28x28 pixels
+        transforms.Resize((28, 28)),
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
 
-    # Load and transform the image
-    image = Image.open(image_path).convert('L')  # Convert to grayscale
+    # Transform the image
     image = transform(image)
     image = image.unsqueeze(0)  # Add batch dimension
 
     # Make prediction
     with torch.no_grad():
         output = model(image)
-        prediction = output.argmax(dim=1, keepdim=True)  # Get the index of the max log-probability
+        prediction = output.argmax(dim=1, keepdim=True)
     return prediction.item()
 
-def main():
+def getModel():
     model_path = 'nnLib/mnist_cnn.pth'
     model = load_model(model_path)
-
-    while True:
-        image_path = input("Enter the path of the image file (or type 'exit' to quit): ").strip()
-        if image_path.lower() == 'exit':
-            break
-        try:
-            result = predict(model, image_path)
-            print(f"Predicted class for {image_path}: {result}")
-        except Exception as e:
-            print(f"An error occurred: {e}")
-
-if __name__ == "__main__":
-    main()
-
+    return model

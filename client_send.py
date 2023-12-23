@@ -1,12 +1,36 @@
+from io import BytesIO
 import socket
 import json
 import sys
 import time
+import base64
+from PIL import Image
 MY_IP="10.0.0.17"
 MY_PORT=1028
 
 MASTER_IP="10.0.0.17"
 MASTER_PORT=1027
+
+
+def encode_image_to_base64(image_path):
+    with Image.open(image_path) as image:
+        buffered = BytesIO()
+        image.save(buffered, format="JPEG")
+        return base64.b64encode(buffered.getvalue()).decode()
+
+def send_message(server_ip, server_port, return_ip, return_port, message):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((server_ip, server_port))
+        start_time = time.time()
+        message_payload = {
+            "message": message,
+            "returnIP": return_ip,
+            "returnPort": return_port,
+            "start_time": start_time
+        }
+        encoded_payload = json.dumps(message_payload).encode()
+        s.sendall(encoded_payload)
+
 
 def receive_message():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -45,17 +69,7 @@ def send_request():
         return entry_data
 
 
-def send_message(server_ip, server_port, return_ip, return_port, message):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((server_ip, server_port))
-        start_time = time.time()
-        message_payload = {
-            "message": message,
-            "returnIP": return_ip,
-            "returnPort": return_port,
-            "start_time": start_time
-        }
-        s.sendall(json.dumps(message_payload).encode())
+
 
 if __name__ == "__main__":
 
@@ -67,6 +81,10 @@ if __name__ == "__main__":
 
     time.sleep(5)
 
-    send_message(server_ip, server_port, "10.0.0.17", 5001, "M1-First message")
-    send_message(server_ip, server_port, "10.0.0.17", 5001, "M2-")
+    encodedImage1=encode_image_to_base64("testImage.jpg")
+    encodeImage2=encode_image_to_base64("testImage2.jpg")
+
+
+    send_message(server_ip, server_port, "10.0.0.17", 5001, encodedImage1)
+    send_message(server_ip, server_port, "10.0.0.17", 5001, encodeImage2)
     
