@@ -2,12 +2,13 @@ import json
 import socket
 import time
 
+
 class Node:
 
     #class variable that tracks all created nodes (alive and dead).
     nodeList=[]
 
-    #class variable that tracks running networks and entry point (netName, entryIp, entryPort)
+    #class variable that tracks running networks. Contains Entry point only. 
     netList=[]
 
     @classmethod
@@ -21,9 +22,9 @@ class Node:
     def isRunning(cls, netName):
         print(f"Searching for {netName}\n")
         for i in cls.netList:
-            print(i[0])
-            if i[0]==netName:
-                return (i[1],i[2])
+            print(i.getName())
+            if i.getName()==netName:
+                return (i.getIP(),i.getPort())
         return False
     
     @classmethod
@@ -42,7 +43,7 @@ class Node:
         self.cpuUtilization=cpuUtilization#0-100
         self.ramUtilization=ramUtilization#0-100
         
-        self.nets=nets#[(netname, startLayer, endLayer, port, ),...]
+        self.nets=nets
         self.portList=portList#[list of used ports] Note:only use ports>=1050
 
         self.lastUpdated=time.time()#time since this node has checked in.
@@ -53,7 +54,6 @@ class Node:
         self.cpuUtilization=cpuUtilization
         self.ramUtilization=ramUtilization
         
-        self.nets=nets#list(set(nets) | set(self.nets))
         self.portList=portList#list(set(portList) | set(self.portList)) 
 
         self.lastUpdated=time.time()
@@ -76,7 +76,8 @@ class Node:
     def canFit(self, required):
         return (self.ram*(1-self.ramUtilization/100))>=required
 
-    def startService(self, netName, startLayer, endLayer, listenPort, nextIP, nextPort):
+    def startService(self, network):
+        netName, startLayer, endLayer, listenPort, nextIP, nextPort=network.getVals()
         source = "master"
         task = "bringup"
         message = f"{netName} {startLayer} {endLayer} {listenPort} {nextIP} {nextPort}"
@@ -102,12 +103,12 @@ class Node:
 
         # Updating the Node.netList for network-wide tracking
         if startLayer == 0:
-            new_entry = (netName, self.ip, listenPort)
+            new_entry = network
             if new_entry not in Node.netList:
                 Node.netList.append(new_entry)
 
         # Updating self.nets to track networks on this node
-        new_net = (netName, startLayer, endLayer, listenPort, nextIP, nextPort)
+        new_net = network
         if new_net not in self.nets:
             self.nets.append(new_net)
 
@@ -118,23 +119,23 @@ class Node:
         return True
 
 
-    def endService(self, netName, startLayer, endLayer, listenPort, nextIP, nextPort):
+    #Broken function
+    def endService(self, network):
+        netName, startLayer, endLayer, listenPort, nextIP, nextPort=network.getVals()
         source="master"
         task="shutdown"
-        message=f"{netName} {startLayer} {endLayer} {listenPort} {nextIP} {nextPort}"
         data = {
         'source':source,
         'task': task,
         'netName': netName,
         'listenPort': listenPort,
-        'startLayer': startLayer,
-        'message': message
+
                 }
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
                 sock.connect((self.ip, self.port))
                 sock.sendall(json.dumps(data).encode('utf-8'))
-                print(f"Sent to {self.ip}:{self.port} - Task: {task}, Message: {message}")
+                print(f"Sent to {self.ip}:{self.port} - Task: {task}")
             except ConnectionRefusedError:
                 print(f"Connection to {self.ip}:{self.port} refused. Make sure the server is running.")
                 return False
@@ -143,12 +144,12 @@ class Node:
                 return False
         # Updating the Node.netList for network-wide tracking
         if startLayer == 0:
-            entry_to_remove = (netName, self.ip, listenPort)
+            entry_to_remove = network
             if entry_to_remove in Node.netList:
                 Node.netList.remove(entry_to_remove)
 
         # Updating self.nets to remove the network from this node
-        net_to_remove = (netName, startLayer, endLayer, listenPort, nextIP, nextPort)
+        net_to_remove = network
         if net_to_remove in self.nets:
             self.nets.remove(net_to_remove)
 

@@ -56,8 +56,8 @@ if __name__ == "__main__":
     startLayer = sys.argv[2]
     endLayer = sys.argv[3]
     listenPort = int(sys.argv[4])
-    nextPort = None if sys.argv[5] == 'None' else int(sys.argv[5])
-    nextIP = None if sys.argv[6] == '' else sys.argv[6]
+    nextIP = None if sys.argv[5] == 'None' else sys.argv[5]
+    nextPort = None if sys.argv[6] == 'None' else int(sys.argv[6])
 
     control_ip = '127.0.0.1'  # Replace with actual control IP
     control_port = 1026  # Replace with actual control port

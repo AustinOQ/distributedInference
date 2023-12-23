@@ -114,9 +114,14 @@ def reply_to_request(entry_ip, entry_port, host, port, network):
 ################################################## END REQUEST LOGIC ###########
 
 #must return (entry ip, entry port)
+from serviceClass import *
 def schedule(request):
+    
     n=Node.nodeList[0]
-    n.startService( "YOLO", 0, None, 5000, 5001, "127.0.0.1")
+
+    # netName, startLayer, endLayer, listenPort, nextIP, nextPort, node, child=None, load=None
+    s=service("YOLO", 0, None, 5000, "127.0.0.1", 5001, n) 
+    n.startService(s)
     return ("127.0.0.1", 5000)
 
 
