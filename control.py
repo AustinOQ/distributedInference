@@ -138,7 +138,7 @@ def handle_instruction(connection, instruction):
                 print(f"Updating time for exitnode {netName}")
                 running[(netName, listenPort)] = (running[(netName, listenPort)][0], time.time())
             except:
-                print("Time could not be updated for "+message)     
+                print("Time could not be updated for " + message)     
 
     except Exception as e:
         print("Error occured in control.py while handling instruction")

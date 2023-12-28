@@ -28,10 +28,25 @@ class Node:
         return False
     
     @classmethod
-    def usable(cls, timeToDeath, ramRequirment):
-        #return list of nodes with enough ram and that are still alive. 
-        #use helper functions below. 
-        pass
+    def usable(cls, timeToDeath, ramRequirement):
+        '''returns only nodes that are alive and meet some ram requirement'''
+        # Filter nodes based on RAM requirement
+        filtered_nodes = [node for node in cls.nodeList if node.canFit(ramRequirement) and node.alive(timeToDeath)]
+
+        # Sort the filtered nodes by available CPU power
+        sorted_nodes = sorted(filtered_nodes, key=lambda node: node.cpu * (1 - node.cpuUtilization / 100), reverse=True)
+
+        return sorted_nodes
+    
+    @classmethod
+    def nodeStats(cls):
+        '''returns all alive nodes and how much ram/ compute they have available. Use to schedule.'''
+        living_nodes = []
+        for node in cls.nodeList:
+            # Calculate available RAM
+            available_ram = node.ram * (1 - node.ramUtilization / 100)
+            living_nodes.append((node, available_ram))
+        return living_nodes
     
     def __init__(self, ip, port=1026, cpu=100, ram=8, cpuUtilization=0, ramUtilization=0, nets=[], portList=[]):
 
@@ -193,7 +208,6 @@ class Node:
         return output
 
 
-def alive(self, int):
-    #if time now = time last talked < int return true
-    pass
+def alive(self, secondsToDead):
+    return time.time()-self.lastUpdated< secondsToDead
 

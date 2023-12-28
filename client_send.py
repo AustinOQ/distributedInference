@@ -79,7 +79,7 @@ if __name__ == "__main__":
     return_ip = MY_IP
     return_port = 5001
 
-    #time.sleep(5)
+    time.sleep(2) #give time to bring up nn
 
     encodedImage1=encode_image_to_base64("testImage.jpg")
     encodeImage2=encode_image_to_base64("testImage2.jpg")
