@@ -79,12 +79,13 @@ if __name__ == "__main__":
     return_ip = MY_IP
     return_port = 5001
 
-    time.sleep(5)
+    #time.sleep(5)
 
     encodedImage1=encode_image_to_base64("testImage.jpg")
     encodeImage2=encode_image_to_base64("testImage2.jpg")
 
 
-    send_message(server_ip, server_port, "10.0.0.17", 5001, encodedImage1)
-    send_message(server_ip, server_port, "10.0.0.17", 5001, encodeImage2)
+   
+    for i in range(2000):
+        send_message(server_ip, server_port, "10.0.0.17", 5001, encodedImage1)
     

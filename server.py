@@ -33,7 +33,7 @@ def client_handler(conn, addr, is_last, next_server_addr, server_id, control_ip,
             message['message'] = inferenceResult
 
             # Print inference result for debugging
-            print(f"Inference Result: {inferenceResult}")
+            #print(f"Inference Result: {inferenceResult}")
 
             # Forwarding the processed message to the next server or returning to the client
             if is_last:

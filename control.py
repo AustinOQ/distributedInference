@@ -52,7 +52,7 @@ def send_message_to_server(host=MY_IP, master_port=MASTER_PORT):
         'ram':ram,
         'cpuUtilization':cpuUtilization,
         'ramUtilization':ramUtilization,
-        'netList':list(running.keys()),
+        'netList':[(a, b, d) for (a, b), (_, d) in running.items()],
         'portList':portList
     }
     while(True):
@@ -74,14 +74,14 @@ def send_message_to_server(host=MY_IP, master_port=MASTER_PORT):
         'ram':ram,
         'cpuUtilization':cpuUtilization,
         'ramUtilization':ramUtilization,
-        'netList':list(running.keys()),
+        'netList':[(a, b, d) for (a, b), (_, d) in running.items()],
         'portList':portList
         }
-        time.sleep(10)
+        time.sleep(1)
         
 
 def listen_for_instructions(my_port):
-    """Listen for instructions from the master server. and from children sending updates."""
+    """Listen for instructions from the master  and from children sending updates."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((MY_IP, MY_PORT))
@@ -112,20 +112,21 @@ def handle_instruction(connection, instruction):
     """Handle an individual instruction from the master server or worker update."""
     try:
         source=instruction.get('source')
-        task = instruction.get('task')
         netName=instruction.get('netName')
         listenPort=instruction.get('listenPort')
-        message = instruction.get('message')
-        print(f"Processing task: {task} with message: {message}")
+        
         if source=='master':
+            task = instruction.get('task')
+            message = instruction.get('message')
+            print(f"Processing task: {task} with message: {message}")
             if task == 'bringup':
               args = message.split()
               proc = subprocess.Popen(['python3', 'server.py'] + args)
-              running[(netName,listenPort)] = proc.pid
+              running[(netName,listenPort)] = (proc.pid, time.time())
               print(f"Bringing up {netName} with PID {proc.pid}")
 
             elif task == 'shutdown':
-                pid = running.get((netName, listenPort))
+                pid = running.get((netName, listenPort))[0]
                 if pid:
                     os.kill(pid, signal.SIGTERM)
                     del running[(netName,listenPort)]
@@ -134,13 +135,10 @@ def handle_instruction(connection, instruction):
             #updates are sent by dnn exitnodes everytime they complete a request. These will be used to track time of
             #last request completed. Measured using linux epoch. 
             try:
-                running[message] = (proc.pid, time.time())
+                print(f"Updating time for exitnode {netName}")
+                running[(netName, listenPort)] = (running[(netName, listenPort)][0], time.time())
             except:
-                print("Time could not be updated for "+message)
-
-
-     
-        
+                print("Time could not be updated for "+message)     
 
     except Exception as e:
         print("Error occured in control.py while handling instruction")

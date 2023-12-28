@@ -16,7 +16,7 @@ def handle_client_connection(connection, address):
     with connection:
         print(f"Connected by {address}")
         try:
-            data = connection.recv(1024)
+            data = connection.recv(2048)
             if data:
                 json_data = json.loads(data.decode('utf-8'))
                 handle_node_status(json_data)
@@ -39,9 +39,10 @@ def handle_node_status(data):
 
     with node_controllers_lock:
         if status == 'up':
-            Node(ip, port, cpu, ram, cpuUtilization, ramUtilization, netList, portList)
-        elif status == 'update':
-            node=Node.findByIp(ip)
+            Node(ip, port, cpu, ram, cpuUtilization, ramUtilization, netList, portList) #make sure node does not already exist and isnt just recovering from a crash. 
+
+        elif status == 'update': 
+            node=Node.findByIp(ip) #Add error handling if node is not found. 
             node.update(cpuUtilization, ramUtilization, netList, portList)
             print(f"Node controller updated: {ip}:{port}")
 
@@ -130,8 +131,8 @@ def main_logic():
         if len(requests_to_serve) != 0 and len(Node.nodeList) != 0:
             request = requests_to_serve.pop(0)
             run=Node.isRunning(request[2])
-            print(run)
-            print(type(run))
+            #print(run)
+            #print(type(run))
             if(run!=False):
                 print("Already running")
                 reply_to_request(run[0], run[1], request[0], request[1], request[2])#entry_ip, entry_port, host, port, network
@@ -139,10 +140,10 @@ def main_logic():
                 run=schedule(request)
                 reply_to_request(run[0], run[1], request[0], request[1], request[2])
             
-        for node in Node.nodeList:
-            print(node)
-        print("Request Queue:",requests_to_serve)
-        time.sleep(10)  # delays prints. 
+        #for node in Node.nodeList:
+            #print(node)
+        #print("Request Queue:",requests_to_serve)
+        time.sleep(1)  # delays prints. 
 
 if __name__ == "__main__":
     start_listener_thread(MY_CONTROLER_LISTEN_PORT)

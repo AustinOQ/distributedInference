@@ -43,7 +43,7 @@ class Node:
         self.cpuUtilization=cpuUtilization#0-100
         self.ramUtilization=ramUtilization#0-100
         
-        self.nets=nets
+        self.nets=[]
         self.portList=portList#[list of used ports] Note:only use ports>=1050
 
         self.lastUpdated=time.time()#time since this node has checked in.
@@ -54,17 +54,27 @@ class Node:
         self.cpuUtilization=cpuUtilization
         self.ramUtilization=ramUtilization
         
-        self.portList=portList#list(set(portList) | set(self.portList)) 
+        self.portList=portList #Could also cause collision w other programs if updates are too slow. 
+                              
 
         self.lastUpdated=time.time()
+
+        '''if nets does not contain an expected network then an error has occured in that network. Handle this in the future. '''
 
     def getLastUpdated(self):
         return self.lastUpdated
     
     def getAvailablePort(self):
-        for i in range(1050,65634):
-            if i not in self.portList:
+        # Convert self.portList to a set for faster lookup
+        portSet = set(self.portList)
+        # Add ports used by services in self.nets to the set
+        for service in self.nets:
+            portSet.add(service.getPort())
+        # Iterate over the range and check for availability
+        for i in range(1050, 65635):  # 65635 is exclusive
+            if i not in portSet:
                 return i
+        # Return False if no available port is found
         return False
     
     def getNets(self):
