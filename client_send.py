@@ -1,7 +1,6 @@
 from io import BytesIO
 import socket
 import json
-import sys
 import time
 import base64
 from PIL import Image
@@ -32,62 +31,59 @@ def send_message(server_ip, server_port, return_ip, return_port, message):
         s.sendall(encoded_payload)
 
 
-def receive_message():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((MY_IP, MY_PORT))
-        s.listen()
-        print(f"Listening for messages on port {MY_PORT}")
-        
-        while(True):
-            conn, _ = s.accept()
-            with conn:
-                data = conn.recv(1024)
-                if data:
-                    message = json.loads(data.decode())
-                    print(f"Received entry ip: {message['entry_ip']}")
-                    print(f"Received entry ip: {message['entry_port']}")
-                    return((message['entry_ip'], message['entry_port'], message['network']))
-
-
-def send_request():
-    host = MASTER_IP # The server's hostname or IP address
-    port = MASTER_PORT         # The port used by the server
-    
-    # Create a JSON payload with the required attributes
-    request_data = json.dumps({
-        'ip': '10.0.0.17',
-        'port': '1028',
-        'network': 'YOLO'
-    }).encode('utf-8')
-    
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-        client_socket.connect((host, port))
-        # Send the request
-        client_socket.sendall(request_data)
-        
-        entry_data=receive_message()
-        return entry_data
-
-
 
 
 if __name__ == "__main__":
 
-    data=send_request()
     data=("127.0.0.1", 5000) #temporarily hardcoded entry point for testing. remove line
     server_ip = data[0]
     server_port = data[1]
     return_ip = MY_IP
-    return_port = 5001
+    return_port = 5002
 
-    time.sleep(2) #give time to bring up nn
-
+    #Images encoded to be sent to dnn in json.
     encodedImage1=encode_image_to_base64("testImage.jpg")
     encodeImage2=encode_image_to_base64("testImage2.jpg")
 
+    # read arrival times json
+    file_path="bursty_arrival_times.json"
+    with open(file_path, 'r') as file:
+        json_data = json.load(file)
 
-   
-    for i in range(2000):
-        send_message(server_ip, server_port, "10.0.0.17", 5001, encodedImage1)
-        time.sleep(2)
+    # Re-creating the dictionary to map keys to their respective values
+    keys = list(json_data.keys())
+    values_dict = {key: json_data[key] for key in keys}
+    
+    for k in keys:
+        print(values_dict[k][0][0])
+
+
+    start_time=time.time()
+    # send messages to server based on arrival times
+    while(True):
+
+        next=float("inf")
+        model=None
+        for a in keys: # iterate through each model
+            if(next>values_dict[a][0][0]):
+                next=values_dict[a][0][0]
+                model=a
+        if model!=None:
+            values_dict[model][0].pop(0)
+
+        current_time=time.time()
+        if(current_time-start_time<next):
+            time.sleep(next-(current_time-start_time))
+
+        #server is the server running the dnn you are wnating to do inference on. 
+        #format(server1 ip, server 1 port, final destination ip, final destination port, image to do inference on)
+        send_message(server_ip, server_port, "10.0.0.17", 5002, encodedImage1) #you will need to change port and 
+                                                                                    #ip to match model you are using.
+        
+        
+
+
+# question for Austin: where is this being sent to? is it being sent to the server or the next node?
+
+# answer: It is being sent to the entry point of the dnn that you requested from master.
     
