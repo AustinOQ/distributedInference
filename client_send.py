@@ -74,6 +74,7 @@ def send_request():
 if __name__ == "__main__":
 
     data=send_request()
+    data=("127.0.0.1", 5000) #temporarily hardcoded entry point for testing. remove line
     server_ip = data[0]
     server_port = data[1]
     return_ip = MY_IP
@@ -88,4 +89,5 @@ if __name__ == "__main__":
    
     for i in range(2000):
         send_message(server_ip, server_port, "10.0.0.17", 5001, encodedImage1)
+        time.sleep(2)
     
