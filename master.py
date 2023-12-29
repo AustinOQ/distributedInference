@@ -3,6 +3,7 @@ import json
 import threading
 import time
 from node import *
+from serviceClass import *
 
 # Configure before startup
 MY_IP = "10.0.0.17"
@@ -115,8 +116,7 @@ def reply_to_request(entry_ip, entry_port, host, port, network):
 ################################################## END REQUEST LOGIC ###########
 
 #must return (entry ip, entry port)
-from serviceClass import *
-def schedule(request, instances=1, slices=1):
+def schedule(request, instances=1, slices=1): #this function belongs in node.py
     n=Node.nodeList[0]
     # netName, startLayer, endLayer, listenPort, nextIP, nextPort, node, child=None, load=None
     s=service("YOLO", 0, None, 5000, "127.0.0.1", 5001, n) 
@@ -129,8 +129,6 @@ def main_logic():
         if len(requests_to_serve) != 0 and len(Node.nodeList) != 0:
             request = requests_to_serve.pop(0)
             run=Node.isRunning(request[2])
-            #print(run)
-            #print(type(run))
             if(run!=False):
                 print("Already running")
                 reply_to_request(run[0], run[1], request[0], request[1], request[2])#entry_ip, entry_port, host, port, network
@@ -138,10 +136,10 @@ def main_logic():
                 run=schedule(request)
                 reply_to_request(run[0], run[1], request[0], request[1], request[2])
             
-        #for node in Node.nodeList:
-            #print(node)
-        #print("Request Queue:",requests_to_serve)
-        time.sleep(1)  # delays prints. 
+        #This is the best place to add crash detection. 
+        #for i in nodeList
+                #if !i.alive(ttd)
+                    #reschedule nets on that node
 
 if __name__ == "__main__":
     start_listener_thread(MY_CONTROLER_LISTEN_PORT)
