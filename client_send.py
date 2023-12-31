@@ -80,10 +80,3 @@ if __name__ == "__main__":
         send_message(server_ip, server_port, "10.0.0.17", 5002, encodedImage1) #you will need to change port and 
                                                                                     #ip to match model you are using.
         
-        
-
-
-# question for Austin: where is this being sent to? is it being sent to the server or the next node?
-
-# answer: It is being sent to the entry point of the dnn that you requested from master.
-    
