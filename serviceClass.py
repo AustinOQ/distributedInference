@@ -1,7 +1,7 @@
 class service:
 
     #nodes is a list of all nodes running this network. 
-    def __init__(self,  netName, startLayer, endLayer, listenPort, node, nextIP, nextPort, child=None, load=None):
+    def __init__(self,  netName, startLayer, endLayer, listenPort, node, nextIP="None", nextPort="None", child=None, load=None):
         self.netName = netName
         self.startLayer = startLayer
         self.endLayer = endLayer

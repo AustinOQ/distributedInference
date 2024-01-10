@@ -3,13 +3,8 @@ from PIL import Image
 from torchvision import transforms
 
 #creator must tell us which splits work. In future we may want to include sizes of splits in tuples. 
+global supported_splits
 supported_splits=[ [(0,0),(1,1),(2,2),(3,3),(4,4),(5,5)], [(0,1),(2,3),(4,5)], [(0,2),(3,5)], [(0,5)] ]
-
-#creator should include name of virtual env that has been tested w this nn. 
-virtual_env_name="/home/austin/venv/yolo/bin/activate"
-
-#activate the virtual env as soon as this file is imported by server.py
-
 
 def load_image(image_path):
     # Define the transformation

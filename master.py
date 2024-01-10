@@ -1,9 +1,11 @@
 import socket
 import json
+import sys
 import threading
 import time
 from node import *
 from serviceClass import *
+import importlib
 
 # Configure before startup
 MY_IP = "10.0.0.17"
@@ -115,12 +117,21 @@ def reply_to_request(entry_ip, entry_port, host, port, network):
             print(f"An error occurred: {e}")
 
 ################################################## END REQUEST LOGIC ###########
-
+def splitFinder(netName):
+    module = importlib.import_module(netName)
+    splitList=module.supported_splits
+    
+     # Remove the module from sys.modules
+    del sys.modules[netName]
+    return splitList
 #must return (entry ip, entry port)
 def schedule(request): #this function belongs in node.py
+    netName=request[2]
+    supported_splits=splitFinder(netName)
+    print (supported_splits)
     n=Node.nodeList[0]
     # netName, startLayer, endLayer, listenPort, nextIP, nextPort, node, child=None, load=None
-    s=service("yolo", 0, None, 5000, n,"10.0.0.17", 5001) 
+    s=service("yolo", 0, 1, 5000, n) 
     n.startService(s)
     return ("10.0.0.17", 5000)
 

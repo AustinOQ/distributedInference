@@ -74,12 +74,13 @@ if __name__ == "__main__":
     startLayer = int(sys.argv[2])
     endLayer = int(sys.argv[3])
     listenPort = int(sys.argv[4])
-    nextIP = None if sys.argv[5] == 'None' else sys.argv[5]
-    nextPort = None if sys.argv[6] == 'None' else int(sys.argv[6])
+    nextIP =  sys.argv[5]
+    nextPort = "None" if sys.argv[6] == 'None' else int(sys.argv[6])
 
     control_ip = '127.0.0.1'  # Replace with actual control IP
     control_port = 1026       # Replace with actual control port
-    is_last = nextPort == 'None'
+    is_last = (nextPort == 'None')
+
 
    # Path to the directory containing all virtual environments
     venv_base_path = '/home/austin/venv/'
