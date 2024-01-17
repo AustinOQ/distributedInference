@@ -28,7 +28,7 @@ class Node:
         return False
     
     @classmethod
-    def usable(cls, timeToDeath, ramRequirement):
+    def usable(cls,  ramRequirement, timeToDeath=100):
         '''returns only nodes that are alive and meet some ram requirement'''
         # Filter nodes based on RAM requirement
         filtered_nodes = [node for node in cls.nodeList if node.canFit(ramRequirement) and node.alive(timeToDeath)]
@@ -79,6 +79,9 @@ class Node:
     def getLastUpdated(self):
         return self.lastUpdated
     
+
+    #FIX THIS
+    #Would be better if this returnes a randomly selected available port to avoid same time bring up colisions
     def getAvailablePort(self):
         # Convert self.portList to a set for faster lookup
         portSet = set(self.portList)
@@ -208,6 +211,7 @@ class Node:
         return output
 
 
-def alive(self, secondsToDead):
-    return time.time()-self.lastUpdated< secondsToDead
-
+    def alive(self, secondsToDead):
+        return time.time()-self.lastUpdated< secondsToDead
+    def getIP(self):
+        return self.ip

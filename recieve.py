@@ -38,7 +38,7 @@ def receive_message(port):
                     print(f"Received data (truncated): {data[:200]}...")  # Only show the first 200 chars
 
 if __name__ == "__main__":
-    import sys
+   
     
     if len(sys.argv) != 2:
         print("Usage: python3 client_receive.py <port>")

@@ -129,11 +129,61 @@ def schedule(request): #this function belongs in node.py
     netName=request[2]
     supported_splits=splitFinder(netName)
     print (supported_splits)
-    n=Node.nodeList[0]
-    # netName, startLayer, endLayer, listenPort, nextIP, nextPort, node, child=None, load=None
-    s=service("yolo", 0, 1, 5000, n) 
-    n.startService(s)
-    return ("10.0.0.17", 5000)
+
+    candidate_node_count=len(Node.nodeStats())
+
+    #Find nodes to fit each slice in order
+    solution_found=False
+    selected_nodes=[]
+    plan_to_use=()
+    for placement_plan in supported_splits:
+        if len(placement_plan)<=candidate_node_count:
+            for slice in placement_plan:
+                usable=Node.usable(slice[2])
+                usable = [node for node in usable if node not in selected_nodes]
+                if len(usable)!=0:
+                    selected_nodes.append(usable[0])
+                else:
+                    selected_nodes=[]
+                    break
+
+        if selected_nodes!=[]: #node found for each slice in current placement plan
+            plan_to_use=placement_plan
+            break
+    if selected_nodes==[]:
+        print("Could not place network. Not enough Ram")
+        print("implementing shut down logic could fix this!!!!")
+        return None
+    else:
+        print(f"Nodes to use={selected_nodes}")
+
+    #pair nodes with slices and net name to start to form service
+    pair=[]
+    for i in range(len(plan_to_use)):
+        pair.append([netName, plan_to_use[i][0], plan_to_use[i][1], selected_nodes[i].getAvailablePort(), selected_nodes[i]])
+
+
+
+
+    #schedule the placement in reverse order
+    child=None
+    pair.reverse()
+    for current in pair:
+        if child!=None:
+            s=service(current[0],current[1], current[2], current[3], current[4], child.getIP(), child.getPort(), child.getNode)
+            current[4].startService(s)
+            child=s
+        else:
+            s=service(current[0],current[1], current[2], current[3], current[4])
+            current[4].startService(s)
+            child=s
+
+
+
+    pair.reverse()#reverse again so 0th element is entry point if net
+    print("Scheduled:",pair[0][4].getIP(), pair[0][3])
+    return (pair[0][4].getIP(), pair[0][3])
+   
 
 
 def main_logic():

@@ -2,7 +2,7 @@ import os
 import socket
 import json
 import sys
-import threading
+#import threading #threading removed to enforce fifo.
 import importlib
 
 
@@ -60,9 +60,10 @@ def start_server(in_port, is_last, control_ip, control_port, next_server_ip=None
 
         while True:
             conn, addr = s.accept()
-            thread = threading.Thread(target=client_handler, args=(conn, addr, is_last, next_server_addr, server_id, control_ip, control_port, start_layer, end_layer))
-            thread.daemon = True
-            thread.start()
+            #thread = threading.Thread(target=client_handler, args=(conn, addr, is_last, next_server_addr, server_id, control_ip, control_port, start_layer, end_layer))
+            #thread.daemon = True
+            #thread.start()
+            client_handler(conn, addr, is_last, next_server_addr, server_id, control_ip, control_port, start_layer, end_layer)
 
 if __name__ == "__main__":
 

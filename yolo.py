@@ -1,10 +1,11 @@
+import time
 import torch
 from PIL import Image
 from torchvision import transforms
 
-#creator must tell us which splits work. In future we may want to include sizes of splits in tuples. 
+#creator must tell us which splits work. [   first split arangment:[(start split 1, end split 1, size in mb), (second hop start, seconf hop end, size)], next split arrangment:[...],...]
 global supported_splits
-supported_splits=[ [(0,0),(1,1),(2,2),(3,3),(4,4),(5,5)], [(0,1),(2,3),(4,5)], [(0,2),(3,5)], [(0,5)] ]
+supported_splits=[ [(0,0,0),(1,1,0),(2,2,0),(3,3,0),(4,4,0),(5,5,0)], [(0,1,0),(2,3,0),(4,5,0)], [(0,2,0),(3,5,0)], [(0,5,0)] ]
 
 def load_image(image_path):
     # Define the transformation
@@ -36,6 +37,9 @@ def getModel():
 def predict(model, layer_start, layer_end):
     # Process an image
     input_tensor = load_image("testImage.jpg")
+    out=0
     for i in range(layer_start, layer_end):
-        out= run_full_model(model, input_tensor)
+        time.sleep(1)
+        #out=0
+        #out= run_full_model(model, input_tensor)
     return out

@@ -69,7 +69,6 @@ def send_request():
 
 if __name__ == "__main__":
     data=send_request()
-    #data=("10.0.0.17", 5000) #temporarily hardcoded entry point for testing. remove line
     server_ip = data[0]
     server_port = data[1]
     return_ip = MY_IP
@@ -95,8 +94,9 @@ if __name__ == "__main__":
 
         #server is the server running the dnn you are wnating to do inference on. 
         #format(server1 ip, server 1 port, final destination ip, final destination port, image to do inference on)
-        send_message(server_ip, server_port, "10.0.0.17", 5001, encodedImage1) #you will need to change port and 
+        send_message(server_ip, server_port, "10.0.0.17", 5002, encodedImage1) #you will need to change port and 
                                                                                     #ip to match model you are using.
+        
          # Update the current time
         current_time += wait_time
         
